@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # http://docs.disqus.com/developers/export/
 import db
-import argparse
 
 conn = db.get_db_connection()
 cursor = db.get_cursor(conn)
