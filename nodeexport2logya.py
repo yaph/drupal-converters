@@ -5,7 +5,11 @@ import imp
 import csv
 import yaml
 import argparse
+import StringIO
 from datetime import datetime
+from lxml import etree
+
+htmlparser = etree.HTMLParser()
 
 parser = argparse.ArgumentParser(description='node export converter')
 parser.add_argument('-f', required=True, help='Drupal Node export CSV file name')
@@ -49,7 +53,7 @@ for row in reader:
     doc['tags'] = tags
 
     if 'path' not in doc or 'nid' not in doc: continue
-    doc['url'] = '/%s/' % doc['path'].strip('/')
+    doc['url'] = '/%s' % doc['path'].lstrip('/')
     del doc['path']
 
     if mapping.template in doc:
@@ -69,6 +73,13 @@ for row in reader:
 
     body = doc['body'].strip()
     del doc['body']
+    for br in mapping.bodyremoves: body = body.replace(br, '')
+
+    desc = doc['description'].strip()
+
+    tree = etree.parse(StringIO.StringIO(desc), htmlparser)
+    doc['description'] = etree.tostring(tree.getroot(), encoding=unicode, method="text")
+
     fname = os.path.join(dirdst, doc['nid'] + '.html')
     del doc['nid']
     fdoc = open(fname, 'w')
