@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
+import re
 import imp
 import csv
 import yaml
@@ -19,6 +20,14 @@ args = parser.parse_args()
 def mkdir(name):
     if not os.path.exists(name): os.makedirs(name)
 
+# http://stackoverflow.com/a/250373/291931
+def smart_truncate(content, length=100, suffix='...'):
+    if len(content) <= length:
+        return content
+    else:
+        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+
+re_ws = re.compile(r'\s+')
 fieldmap = {}
 docs = []
 mapping = imp.load_source('module.name', args.m)
@@ -77,12 +86,19 @@ for row in reader:
 
     desc = doc['description'].strip()
 
+    # strip HTML
     tree = etree.parse(StringIO.StringIO(desc), htmlparser)
-    doc['description'] = etree.tostring(tree.getroot(), encoding=unicode, method="text")
+    doc['description'] = etree.tostring(tree.getroot(), encoding=unicode, method='text')
+
+    # replace multiple white space chars with one space
+    doc['description'] = re.sub(re_ws, ' ', doc['description'])
+
+    # truncate to 160 chars, about the number Google shows in search results.
+    doc['description'] = smart_truncate(doc['description'], length=160, suffix='')
 
     fname = os.path.join(dirdst, doc['nid'] + '.html')
     del doc['nid']
     fdoc = open(fname, 'w')
-    fdoc.write('---\n%s---\n%s' % (yaml.dump(doc), body.encode('utf-8')))
+    fdoc.write('---\n%s---\n%s' % (yaml.safe_dump(doc), body.encode('utf-8')))
     fdoc.close()
 
