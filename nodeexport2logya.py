@@ -62,7 +62,7 @@ for row in reader:
     doc['tags'] = tags
 
     if 'path' not in doc or 'nid' not in doc: continue
-    doc['url'] = '/%s' % doc['path'].lstrip('/')
+    doc['url'] = '/%s/' % doc['path'].strip('/')
     del doc['path']
 
     if mapping.template in doc:
