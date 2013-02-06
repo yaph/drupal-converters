@@ -1,5 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# TODOs
+# convert HTML entities
+# don't append slashes when urls end in .html
+# fix internal links
+# make sure all fields are included
+# fix tags with unicode chars z\xFCrich
 import os
 import re
 import imp
