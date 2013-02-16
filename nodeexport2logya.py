@@ -1,11 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # TODOs
-# convert HTML entities
-# don't append slashes when urls end in .html
+# convert HTML entities? see http://stackoverflow.com/a/12614706/291931
 # fix internal links
 # make sure all fields are included
-# fix tags with unicode chars z\xFCrich
 import os
 import re
 import imp
@@ -32,6 +30,14 @@ def smart_truncate(content, length=100, suffix='...'):
         return content
     else:
         return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+
+allowed_exts = ['html', 'htm', 'xml', 'json', 'js', 'css', 'php', 'md', 'markdown']
+def check_ext(path):
+    for e in allowed_exts:
+        if path.endswith(e):
+            return True
+    return False
+
 
 re_ws = re.compile(r'\s+')
 fieldmap = {}
@@ -68,7 +74,11 @@ for row in reader:
     doc['tags'] = tags
 
     if 'path' not in doc or 'nid' not in doc: continue
-    doc['url'] = '/%s/' % doc['path'].strip('/')
+    doc['url'] = '/' + doc['path'].lstrip('/')
+    # append slash if path does not end in allowed file extension
+    if not check_ext(doc['url']):
+        doc['url'] = doc['url'].rstrip('/') + '/'
+
     del doc['path']
 
     if mapping.template in doc:
