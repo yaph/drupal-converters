@@ -103,7 +103,7 @@ for row in reader:
         body = body.replace(br, '')
 
     # Strip HTML with regex, YES!
-    doc['description'] = re.sub(re_tag, ' ', doc.get('description', ''))
+    doc['description'] = re.sub(re_tag, '', doc.get('description', ''))
 
     # Replace multiple white space chars with one space.
     doc['description'] = re.sub(re_ws, ' ', doc['description']).strip()
